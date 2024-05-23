@@ -1,7 +1,18 @@
 from rest_framework import serializers
-from inmuebleslist_app.models import Inmueble, Empresa
+from inmuebleslist_app.models import Edificacion, Empresa
 
-class EmpresaSerializer(serializers.ModelSerializer):
+
+class EdificacionSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Edificacion
+    fields = "__all__"
+
+
+class EmpresaSerializer(serializers.HyperlinkedModelSerializer):
+  edificacionlist = EdificacionSerializer(many = True, read_only = True)
+  # edificacionlist = serializers.StringRelatedField(many = True)
+  # edificacionlist = serializers.PrimaryKeyRelatedField(many = True, read_only = True)
+  # edificacionlist = serializers.HyperlinkedRelatedField(many = True, read_only = True, view_name = "edificacion_detalle")
   class Meta:
     model = Empresa
     fields = "__all__"
@@ -9,10 +20,6 @@ class EmpresaSerializer(serializers.ModelSerializer):
 
 
 
-class InmuebleSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = Inmueble
-    fields = "__all__"
     
     
     
