@@ -1,13 +1,52 @@
-from inmuebleslist_app.models import Edificacion, Empresa
-from inmuebleslist_app.api.serializers import EdificacionSerializer, EmpresaSerializer
+from inmuebleslist_app.models import Edificacion, Empresa, Comentario
+from inmuebleslist_app.api.serializers import EdificacionSerializer, EmpresaSerializer, ComentarioSerializer
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework import generics, status, viewsets
+from django.shortcuts import get_object_or_404
 # Create your views here.
+
+
+class ComentarioCreate(generics.CreateAPIView):
+  serializer_class = ComentarioSerializer
+  
+  def perform_create(self, serializer):
+    pk = self.kwargs.get('pk')
+    inmueble = Edificacion.objects.get(pk = pk)
+    serializer.save(edificacion = inmueble)
+
+class ComentarioList(generics.ListCreateAPIView):
+  # queryset = Comentario.objects.all()
+  serializer_class = ComentarioSerializer
+  
+  def get_queryset(self):
+    pk = self.kwargs['pk']
+    print(self.kwargs['pk'])
+    return Comentario.objects.filter(edificacion = pk)
+
+class ComentarioDetail(generics.RetrieveUpdateDestroyAPIView):
+  queryset = Comentario.objects.all()
+  serializer_class = ComentarioSerializer
+  
+
+class EmpresaVS(viewsets.ViewSet):
+  def list(self, request):
+    queryset = Empresa.objects.all()
+    serializer = EmpresaSerializer(queryset, many=True)
+    return Response(serializer.data)
+  
+  def retrieve(self, request, pk = None):
+    queryset = Empresa.objects.all()
+    edificacionlist = get_object_or_404(queryset, pk=pk)
+    serializer = EmpresaSerializer(edificacionlist)
+    return Response(serializer.data)
+  
+  
+
 
 class EmpresaAV(APIView):
   def get(self, request):
+    print(f'{request} aqui')
     empresas = Empresa.objects.all()
     serializer = EmpresaSerializer(empresas, many=True, context={'request': request})
     return Response(serializer.data)

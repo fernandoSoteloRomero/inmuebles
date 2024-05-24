@@ -43,7 +43,7 @@ class Comentario(models.Model):
   updated = models.DateTimeField(auto_now=True)
   
   def __str__(self):
-    return str(self.calificacion)
+    return str(self.calificacion) + " " + self.edificacion.direccion
   
 
 
